@@ -1,5 +1,7 @@
 <?php
 
+namespace SimpleMVC;
+
 Class Log {
 
 	protected static $verbose = false;

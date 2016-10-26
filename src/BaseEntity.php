@@ -1,5 +1,7 @@
 <?php
 
+namespace SimpleMVC;
+
 class BaseEntity {
 
 	protected $id;

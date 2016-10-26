@@ -1,5 +1,7 @@
 <?php
 
+namespace SimpleMVC;
+
 class DBP {
 
     protected static $dbh;

@@ -1,5 +1,7 @@
 <?php
 
+namespace SimpleMVC;
+
 class BaseController {
 
 	protected $GET_Map;
