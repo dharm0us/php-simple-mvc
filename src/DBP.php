@@ -1,7 +1,7 @@
 <?php
 
 namespace SimpleMVC;
-
+use \PDO;
 class DBP {
 
     protected static $dbh;
