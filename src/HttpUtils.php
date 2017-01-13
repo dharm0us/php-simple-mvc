@@ -7,6 +7,10 @@ class HttpUtils {
         header("HTTP/1.0 400 WTF?");
     }
 
+    public static function internalError($msg) {
+        header("HTTP/1.0 500 $msg");
+    }
+
     public static function getClientIp() {
         $ipAddress = '';
         if (isset($_SERVER['HTTP_CLIENT_IP']))
