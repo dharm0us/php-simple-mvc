@@ -145,6 +145,10 @@ class BaseEntity {
 		return array();
 	}
 
+	protected static function getFKs() {
+		return array();
+	}
+
 	protected static function getExistingColumns() {
 		$cols = array();
 		$query = "SELECT `COLUMN_NAME` as col FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`=:db_name AND `TABLE_NAME`=:table_name";
@@ -154,6 +158,20 @@ class BaseEntity {
 			$cols[] = $row['col'];
 		}
 		return $cols;
+	}
+
+	private static function generateFKs() {
+		$fks = static::getFKs();
+		$table = static::getTableName();
+		$fkText = "";
+		foreach ($fks as $col => $ref) {
+			$refTable = $ref['table'];
+			$refColumn = $ref['column'];
+			$keyName = "fk_$col_$table";
+			$fkText .= "CONSTRAINT $keyName FOREIGN KEY ($col) REFERENCES  $refTable($refColumn) ON DELETE NO ACTION ON UPDATE NO ACTION,";
+		}
+		$fkText = rtrim($fkText, ",");
+		return $fkText;
 	}
 
 	public static function createOrUpdateTable() {
@@ -171,6 +189,7 @@ class BaseEntity {
             foreach ($finalDefs as $col => $def) {
                 $query .= "$col $def,";
             }
+	    $query .= static::generateFKs();
             $query = rtrim($query, ",");
             $query .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8";
             DBP::runQuery($query);
