@@ -167,7 +167,7 @@ class BaseEntity {
 		foreach ($fks as $col => $ref) {
 			$refTable = $ref['table'];
 			$refColumn = $ref['column'];
-			$keyName = "fk_$col_$table";
+			$keyName = "fk_".$table."_".$col;
 			$fkText .= "CONSTRAINT $keyName FOREIGN KEY ($col) REFERENCES  $refTable($refColumn) ON DELETE NO ACTION ON UPDATE NO ACTION,";
 		}
 		$fkText = rtrim($fkText, ",");
