@@ -36,8 +36,8 @@ class BaseController {
 	}
 
 	protected function setMaps() {
-		$this->GET_map = array();
-		$this->POST_map = array();
+		$this->GET_Map = array();
+		$this->POST_Map = array();
 	}
 
 	protected function defaultAction() {
