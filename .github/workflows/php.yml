@@ -52,5 +52,10 @@ jobs:
     - name: Verify MySQL connection
       run: mysql -h 127.0.0.1 -u root -proot1234 -e "SHOW DATABASES;"
 
+    - name: Start PHP server
+      run: |
+        php -S 127.0.0.1:8080 -t tests/ & # Assumes your entry point is in the public directory, adjust if needed
+        sleep 3 # Give PHP some time to start
+
     - name: Run PHPUnit tests
       run: ./vendor/bin/phpunit tests
