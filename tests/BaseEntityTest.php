@@ -10,6 +10,26 @@ class BaseEntityTest extends PHPUnit\Framework\TestCase
         TestUtils::setUpTestDB();
     }
 
+    public function testTableUpdation()
+    {
+        $pdo = new PDO("mysql:host=127.0.0.1", DB_USER, DB_PASS);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $drop_column_sql = "alter table " . DB_NAME . ".players drop column registration";
+        $pdo->exec($drop_column_sql);
+
+        $this->assertNotEquals(
+            $this->getActualTableCreationString('players'),
+            $this->expectedPlayersTableCreationString()
+        );
+        PlayerEntity::createOrUpdateTable();
+
+        $this->assertEquals(
+            $this->getActualTableCreationString('players'),
+            $this->expectedPlayersTableCreationString()
+        );
+    }
+
     public function testTableCreation()
     {
         $this->assertEquals(
