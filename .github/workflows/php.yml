@@ -48,7 +48,6 @@ jobs:
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
-      working-directory: trunk/core
 
     - name: Verify MySQL connection
       run: mysql -h 127.0.0.1 -u root -proot1234 -e "SHOW DATABASES;"
