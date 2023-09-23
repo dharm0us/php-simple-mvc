@@ -5,12 +5,13 @@ require_once 'CategoryEntity.php';
 require_once 'RankingEntity.php';
 class BaseEntityTest extends PHPUnit\Framework\TestCase
 {
+    public function setUp(): void
+    {
+        TestUtils::setUpTestDB();
+    }
+
     public function testTableCreation()
     {
-        PlayerEntity::createOrUpdateTable();
-        CategoryEntity::createOrUpdateTable();
-        RankingEntity::createOrUpdateTable();
-
         $this->assertEquals(
             $this->getActualTableCreationString('players'),
             $this->expectedPlayersTableCreationString()
@@ -90,13 +91,9 @@ class BaseEntityTest extends PHPUnit\Framework\TestCase
   `isActive` int DEFAULT '1',
   `isDeleted` int DEFAULT '0',
   `name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `dob` date DEFAULT NULL,
-  `registration` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `region` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `registration` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `registration` (`registration`),
-  KEY `idx_dob` (`dob`),
-  KEY `idx_region` (`region`),
   FULLTEXT KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci";
     }

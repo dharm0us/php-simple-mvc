@@ -7,6 +7,24 @@ class CategoryEntity extends BaseEntity
     protected $cat;
     protected $subcat;
 
+    public function getCat()
+    {
+        return $this->cat;
+    }
+    public function setCat($cat)
+    {
+        $this->cat = $cat;
+    }
+
+    public function getSubcat()
+    {
+        return $this->subcat;
+    }
+    public function setSubcat($subcat)
+    {
+        $this->subcat = $subcat;
+    }
+
     protected static function getColumnDefinitions()
     {
         $defs = array();

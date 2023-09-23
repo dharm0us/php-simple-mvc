@@ -4,5 +4,3 @@ require_once './TestUtils.php';
 chdir($dir . '/../');
 require_once 'env.php.test';
 require_once 'common.inc.php';
-
-TestUtils::setUpTestDB();
