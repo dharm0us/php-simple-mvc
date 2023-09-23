@@ -2,7 +2,8 @@
 
 namespace SimpleMVC;
 
-class BaseEntity {
+class BaseEntity
+{
 
 	protected $id;
 	protected $createdAt;
@@ -10,63 +11,88 @@ class BaseEntity {
 	protected $createdBy;
 	protected $updatedBy;
 	protected $isActive;
+	protected $isDeleted;
 
-	public function getIsActive() {
+	public function getIsDeleted()
+	{
+		return $this->isDeleted;
+	}
+
+	public function setIsDeleted($isDeleted)
+	{
+		$this->isDeleted = $isDeleted;
+	}
+
+	public function getIsActive()
+	{
 		return $this->isActive;
 	}
 
-	public function setIsActive($isActive) {
+	public function setIsActive($isActive)
+	{
 		$this->isActive = $isActive;
 	}
 
-	public function getId() {
+	public function getId()
+	{
 		return $this->id;
 	}
 
-	public function setId($id) {
+	public function setId($id)
+	{
 		$this->id = $id;
 	}
 
-	public function getCreatedBy() {
+	public function getCreatedBy()
+	{
 		return $this->createdBy;
 	}
 
-	public function setCreatedBy($createdBy) {
+	public function setCreatedBy($createdBy)
+	{
 		$this->createdBy = $createdBy;
 	}
 
-	public function getUpdatedBy() {
+	public function getUpdatedBy()
+	{
 		return $this->updatedBy;
 	}
 
-	public function setUpdatedBy($updatedBy) {
+	public function setUpdatedBy($updatedBy)
+	{
 		$this->updatedBy = $updatedBy;
 	}
 
-	public function getCreatedAt() {
+	public function getCreatedAt()
+	{
 		return $this->createdAt;
 	}
 
-	public function setCreatedAt($createdAt) {
+	public function setCreatedAt($createdAt)
+	{
 		$this->createdAt = $createdAt;
 	}
 
-	public function getUpdatedAt() {
+	public function getUpdatedAt()
+	{
 		return $this->updatedAt;
 	}
 
-	public function setUpdatedAt($updatedAt) {
+	public function setUpdatedAt($updatedAt)
+	{
 		$this->updatedAt = $updatedAt;
 	}
 
-	public function __construct($id = '') {
+	public function __construct($id = '')
+	{
 		if ($id) {
 			$this->id = $id;
 			$this->buildFromDb();
 		}
 	}
 
-	public function buildFromDb($row = array()) {
+	public function buildFromDb($row = array())
+	{
 		if (!$row) {
 			$columnNames = $this->getCommaSeparatedColumnNames();
 			$query = "select $columnNames from " . static::getTableName() . " where id = :id";
@@ -83,7 +109,8 @@ class BaseEntity {
 		}
 	}
 
-	private function fillThisWithDBValues($row) {
+	private function fillThisWithDBValues($row)
+	{
 		$fieldNames = static::getColumnNames();
 		foreach ($fieldNames as $fieldName) {
 			if (isset($row[$fieldName])) {
@@ -93,7 +120,8 @@ class BaseEntity {
 		}
 	}
 
-	public function getAssocVersion() {
+	public function getAssocVersion()
+	{
 		$row = array();
 		$fieldNames = static::getColumnNames();
 		foreach ($fieldNames as $fieldName) {
@@ -102,11 +130,13 @@ class BaseEntity {
 		}
 		return $row;
 	}
-	protected static function getTableName() {
+	protected static function getTableName()
+	{
 		return null;
 	}
 
-	public function getFields() {
+	public function getFields()
+	{
 		/*
 		 * For get_class_vars to work correctly - 
 		 * all inheriting classes should have all those variables as protected which we want in getFields().
@@ -122,15 +152,18 @@ class BaseEntity {
 		return $fields;
 	}
 
-	private static function getColumnNames() {
+	private static function getColumnNames()
+	{
 		return array_keys(get_class_vars(get_called_class()));
 	}
 
-	public static function getCommaSeparatedColumnNames() {
+	public static function getCommaSeparatedColumnNames()
+	{
 		return implode(",", static::getColumnNames());
 	}
 
-	private static function getDefaultDefs(){
+	private static function getDefaultDefs()
+	{
 		$defs = array();
 		$defs['id'] = 'bigint(20) primary key auto_increment';
 		$defs['createdAt'] = 'int(11) NOT NULL';
@@ -138,93 +171,108 @@ class BaseEntity {
 		$defs['createdBy'] = 'varchar(64) default null';
 		$defs['updatedBy'] = 'varchar(64) default null';
 		$defs['isActive'] = 'int(11) default 1';
+		$defs['isDeleted'] = 'int(11) default 0';
 		return $defs;
 	}
 
-	protected static function getColumnDefinitions() {
+	protected static function getIndexDefinitions()
+	{
 		return array();
 	}
 
-	protected static function getFKs() {
+	protected static function getColumnDefinitions()
+	{
 		return array();
 	}
 
-	protected static function getExistingColumns() {
+	protected static function getFKs()
+	{
+		return array();
+	}
+
+	protected static function getExistingColumns()
+	{
 		$cols = array();
 		$query = "SELECT `COLUMN_NAME` as col FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`=:db_name AND `TABLE_NAME`=:table_name";
 		$bindings = array('db_name' => DB_NAME, 'table_name' => static::getTableName());
-		$rows = DBP::getResultSet($query,$bindings);
+		$rows = DBP::getResultSet($query, $bindings);
 		foreach ($rows as $row) {
 			$cols[] = $row['col'];
 		}
 		return $cols;
 	}
 
-	private static function generateFKs() {
+	private static function generateFKs()
+	{
 		$fks = static::getFKs();
 		$table = static::getTableName();
 		$fkText = "";
 		foreach ($fks as $col => $ref) {
 			$refTable = $ref['table'];
 			$refColumn = $ref['column'];
-			$keyName = "fk_".$table."_".$col;
+			$keyName = "fk_" . $table . "_" . $col;
 			$fkText .= "CONSTRAINT $keyName FOREIGN KEY ($col) REFERENCES  $refTable($refColumn) ON DELETE NO ACTION ON UPDATE NO ACTION,";
 		}
 		$fkText = rtrim($fkText, ",");
 		return $fkText;
 	}
 
-	public static function createOrUpdateTable() {
-        $existingColumnNames = static::getExistingColumns();
-        $update = false;
-        if($existingColumnNames) {
-            $update = true;
-        }
-        $defs = self::getDefaultDefs();
-        $tableName = static::getTableName();
-        $extraDefs = static::getColumnDefinitions();
-        $finalDefs = array_merge($defs,$extraDefs);
-        if(!$update) {
-            $query = "create table $tableName (";
-            foreach ($finalDefs as $col => $def) {
-                $query .= "$col $def,";
-            }
-	    $query .= static::generateFKs();
-            $query = rtrim($query, ",");
-            $query .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8";
-            DBP::runQuery($query);
-        } else {
-            $newColumnDefs = array();
-            foreach($finalDefs as $col => $def) {
-                if (!in_array($col, $existingColumnNames)) {
-                    $newColumnDefs[$col] = $def;
-                }
-            }
-            $query = "alter table $tableName";
-            foreach($newColumnDefs as $col => $def) {
-                $query .= " add column $col $def,";
-            }
-            $query = rtrim($query,",");
-            //echo $query;die;
-            DBP::runQuery($query);
-        }
-    }
+	public static function createOrUpdateTable()
+	{
+		$existingColumnNames = static::getExistingColumns();
+		$update = false;
+		if ($existingColumnNames) {
+			$update = true;
+		}
+		$defs = self::getDefaultDefs();
+		$tableName = static::getTableName();
+		$extraDefs = static::getColumnDefinitions();
+		$finalDefs = array_merge($defs, $extraDefs);
+		$indexDefs = static::getIndexDefinitions();
+		if (!$update) {
+			$query = "create table $tableName (";
+			foreach ($finalDefs as $col => $def) {
+				$query .= "$col $def,";
+			}
+			foreach ($indexDefs as $index) {
+				$query .= "$index,";
+			}
+			$query .= static::generateFKs();
+			$query = rtrim($query, ",");
+			$query .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+			DBP::runQuery($query);
+		} else {
+			$newColumnDefs = array();
+			foreach ($finalDefs as $col => $def) {
+				if (!in_array($col, $existingColumnNames)) {
+					$newColumnDefs[$col] = $def;
+				}
+			}
+			$query = "alter table $tableName";
+			foreach ($newColumnDefs as $col => $def) {
+				$query .= " add column $col $def,";
+			}
+			$query = rtrim($query, ",");
+			//echo $query;die;
+			DBP::runQuery($query);
+		}
+	}
 
-	public function save() {
+	public function save()
+	{
 		if (!$this->id) {
 			$this->createdAt = time();
-			$this->updatedAt = $this->createdAt; 
+			$this->updatedAt = $this->createdAt;
 			DBP::insert(static::getTableName(), $this->getFields());
 			$this->id = DBP::getLastInsertId();
 		} else {
-			$this->updatedAt = time(); 
+			$this->updatedAt = time();
 			DBP::update(static::getTableName(), $this->getFields(), $this->getId());
 		}
 	}
 
-	public function delete() {
+	public function delete()
+	{
 		DBP::delete(static::getTableName(), $this->getId());
 	}
-
 }
-
