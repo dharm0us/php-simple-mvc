@@ -190,6 +190,18 @@ class BaseEntity
 		return array();
 	}
 
+	protected static function getExistingIndices()
+	{
+		$cols = array();
+		$query = "SELECT `INDEX_NAME` FROM `INFORMATION_SCHEMA`.`STATISTICS` WHERE `TABLE_SCHEMA`=:db_name AND `TABLE_NAME`=:table_name";
+		$bindings = array('db_name' => DB_NAME, 'table_name' => static::getTableName());
+		$rows = DBP::getResultSet($query, $bindings);
+		foreach ($rows as $row) {
+			$cols[] = $row['INDEX_NAME'];
+		}
+		return $cols;
+	}
+
 	protected static function getExistingColumns()
 	{
 		$cols = array();
@@ -220,6 +232,7 @@ class BaseEntity
 	public static function createOrUpdateTable()
 	{
 		$existingColumnNames = static::getExistingColumns();
+		$existingIndexNames = static::getExistingIndices();
 		$update = false;
 		if ($existingColumnNames) {
 			$update = true;
@@ -235,7 +248,10 @@ class BaseEntity
 				$query .= "$col $def,";
 			}
 			foreach ($indexDefs as $index) {
-				$query .= "$index,";
+				$index_type = $index[0];
+				$index_name = $index[1];
+				$column_name = $index[2];
+				$query .= "$index_type $index_name ($column_name),";
 			}
 			$query .= static::generateFKs();
 			$query = rtrim($query, ",");
@@ -252,6 +268,16 @@ class BaseEntity
 			foreach ($newColumnDefs as $col => $def) {
 				$query .= " add column $col $def,";
 			}
+
+			foreach ($indexDefs as $index) {
+				$index_type = $index[0];
+				$index_name = $index[1];
+				$column_name = $index[2];
+				if (!in_array($index_name, $existingIndexNames)) {
+					$query .= " add $index_type $index_name ($column_name),";
+				}
+			}
+
 			$query = rtrim($query, ",");
 			//echo $query;die;
 			DBP::runQuery($query);

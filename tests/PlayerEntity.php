@@ -32,14 +32,15 @@ class PlayerEntity extends BaseEntity
         $defs = array();
 
         $defs['name'] = 'text COLLATE utf8mb4_unicode_ci NOT NULL';
-        $defs['registration'] = 'varchar(32) UNIQUE COLLATE utf8mb4_unicode_ci DEFAULT NULL';
+        $defs['registration'] = 'varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL';
         return $defs;
     }
 
     protected static function getIndexDefinitions()
     {
         $indices = array();
-        $indices[] = "FULLTEXT (name)";
+        $indices[] = array("FULLTEXT", "name_idx", "name");
+        $indices[] = array("UNIQUE KEY", "registration_idx", "registration");
         return $indices;
     }
 

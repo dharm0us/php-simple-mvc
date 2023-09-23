@@ -18,6 +18,21 @@ class BaseEntityTest extends PHPUnit\Framework\TestCase
         $drop_column_sql = "alter table " . DB_NAME . ".players drop column registration";
         $pdo->exec($drop_column_sql);
 
+
+        $this->assertNotEquals(
+            $this->getActualTableCreationString('players'),
+            $this->expectedPlayersTableCreationString()
+        );
+        PlayerEntity::createOrUpdateTable();
+
+        $this->assertEquals(
+            $this->getActualTableCreationString('players'),
+            $this->expectedPlayersTableCreationString()
+        );
+
+        $drop_index_sql = "alter table " . DB_NAME . ".players drop index name_idx";
+        $pdo->exec($drop_index_sql);
+
         $this->assertNotEquals(
             $this->getActualTableCreationString('players'),
             $this->expectedPlayersTableCreationString()
@@ -113,8 +128,8 @@ class BaseEntityTest extends PHPUnit\Framework\TestCase
   `name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `registration` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `registration` (`registration`),
-  FULLTEXT KEY `name` (`name`)
+  UNIQUE KEY `registration_idx` (`registration`),
+  FULLTEXT KEY `name_idx` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci";
     }
 }
