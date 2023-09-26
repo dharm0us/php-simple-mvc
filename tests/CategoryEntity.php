@@ -34,7 +34,7 @@ class CategoryEntity extends BaseEntity
         return $defs;
     }
 
-    protected static function getTableName()
+    public static function getTableName()
     {
         return "categories";
     }

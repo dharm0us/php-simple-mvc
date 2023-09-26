@@ -44,7 +44,7 @@ class PlayerEntity extends BaseEntity
         return $indices;
     }
 
-    protected static function getTableName()
+    public static function getTableName()
     {
         return "players";
     }

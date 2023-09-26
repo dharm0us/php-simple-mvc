@@ -17,7 +17,7 @@ class RankingEntity extends BaseEntity
         return $defs;
     }
 
-    protected static function getFKs()
+    public static function getFKs()
     {
         $a = array();
         $a[] = new ForeignKey(columnName: 'playerId', refTable: 'players', refColumn: 'id');
@@ -25,7 +25,7 @@ class RankingEntity extends BaseEntity
         return $a;
     }
 
-    protected static function getTableName()
+    public static function getTableName()
     {
         return "rankings";
     }

@@ -130,7 +130,8 @@ class BaseEntity
 		}
 		return $row;
 	}
-	protected static function getTableName()
+
+	public static function getTableName()
 	{
 		return null;
 	}
@@ -185,7 +186,7 @@ class BaseEntity
 		return array();
 	}
 
-	protected static function getFKs()
+	public static function getFKs()
 	{
 		return array();
 	}
