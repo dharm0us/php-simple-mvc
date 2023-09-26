@@ -219,9 +219,10 @@ class BaseEntity
 		$fks = static::getFKs();
 		$table = static::getTableName();
 		$fkText = "";
-		foreach ($fks as $col => $ref) {
-			$refTable = $ref['table'];
-			$refColumn = $ref['column'];
+		foreach ($fks as $fk) {
+			$col = $fk->columnName;
+			$refTable = $fk->refTable;
+			$refColumn = $fk->refColumn;
 			$keyName = "fk_" . $table . "_" . $col;
 			$fkText .= "CONSTRAINT $keyName FOREIGN KEY ($col) REFERENCES  $refTable($refColumn) ON DELETE NO ACTION ON UPDATE NO ACTION,";
 		}

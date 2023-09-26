@@ -1,6 +1,7 @@
 <?php
 
 use SimpleMVC\BaseEntity;
+use SimpleMVC\ForeignKey;
 
 class RankingEntity extends BaseEntity
 {
@@ -19,8 +20,8 @@ class RankingEntity extends BaseEntity
     protected static function getFKs()
     {
         $a = array();
-        $a['playerId'] = array('table' => 'players', 'column' => 'id');
-        $a['categoryId'] = array('table' => 'categories', 'column' => 'id');
+        $a[] = new ForeignKey(columnName: 'playerId', refTable: 'players', refColumn: 'id');
+        $a[] = new ForeignKey(columnName: 'categoryId', refTable: 'categories', refColumn: 'id');
         return $a;
     }
 
