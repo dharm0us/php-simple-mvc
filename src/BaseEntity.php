@@ -190,16 +190,41 @@ class BaseEntity
 		return array();
 	}
 
+	protected static function getExistingFKs()
+	{
+		$fks = array();
+		$query = "SELECT 
+    COLUMN_NAME,
+    REFERENCED_TABLE_NAME,
+    REFERENCED_COLUMN_NAME 
+FROM 
+    INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+WHERE 
+    REFERENCED_TABLE_NAME IS NOT NULL 
+    AND TABLE_SCHEMA = :db_name 
+    AND TABLE_NAME = :table_name;";
+		$bindings = array('db_name' => DB_NAME, 'table_name' => static::getTableName());
+		$rows = DBP::getResultSet($query, $bindings);
+		foreach ($rows as $row) {
+			$columnName = $row['COLUMN_NAME'];
+			$refTable = $row['REFERENCED_TABLE_NAME'];
+			$refColumn = $row['REFERENCED_COLUMN_NAME'];
+			$fk = new ForeignKey(columnName: $columnName, refTable: $refTable, refColumn: $refColumn);
+			$fks[] = $fk;
+		}
+		return $fks;
+	}
+
 	protected static function getExistingIndices()
 	{
-		$cols = array();
+		$indices = array();
 		$query = "SELECT `INDEX_NAME` FROM `INFORMATION_SCHEMA`.`STATISTICS` WHERE `TABLE_SCHEMA`=:db_name AND `TABLE_NAME`=:table_name";
 		$bindings = array('db_name' => DB_NAME, 'table_name' => static::getTableName());
 		$rows = DBP::getResultSet($query, $bindings);
 		foreach ($rows as $row) {
-			$cols[] = $row['INDEX_NAME'];
+			$indices[] = $row['INDEX_NAME'];
 		}
-		return $cols;
+		return $indices;
 	}
 
 	protected static function getExistingColumns()
@@ -214,74 +239,103 @@ class BaseEntity
 		return $cols;
 	}
 
-	private static function generateFKs()
+	private static function generateFKString($fkList, $forUpdate)
 	{
-		$fks = static::getFKs();
 		$table = static::getTableName();
 		$fkText = "";
-		foreach ($fks as $fk) {
+		foreach ($fkList as $fk) {
 			$col = $fk->columnName;
 			$refTable = $fk->refTable;
 			$refColumn = $fk->refColumn;
 			$keyName = "fk_" . $table . "_" . $col;
-			$fkText .= "CONSTRAINT $keyName FOREIGN KEY ($col) REFERENCES  $refTable($refColumn) ON DELETE NO ACTION ON UPDATE NO ACTION,";
+			$prefix = "";
+			if ($forUpdate) {
+				$prefix = "ADD";
+			}
+			$fkText .= "$prefix CONSTRAINT $keyName FOREIGN KEY ($col) REFERENCES  $refTable($refColumn) ON DELETE NO ACTION ON UPDATE NO ACTION,";
 		}
 		$fkText = rtrim($fkText, ",");
 		return $fkText;
 	}
 
-	public static function createOrUpdateTable()
+
+	private static function createTable($columnDefs, $indexDefs, $fkDefs)
+	{
+		$tableName = static::getTableName();
+		$query = "create table $tableName (";
+		foreach ($columnDefs as $col => $def) {
+			$query .= "$col $def,";
+		}
+		foreach ($indexDefs as $index) {
+			$index_type = $index[0];
+			$index_name = $index[1];
+			$column_name = $index[2];
+			$query .= "$index_type $index_name ($column_name),";
+		}
+		$query .= static::generateFKString(fkList: $fkDefs, forUpdate: false);
+		$query = rtrim($query, ",");
+		$query .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+		DBP::runQuery($query);
+	}
+
+	private static function updateTable($columnDefs, $indexDefs, $fkDefs)
 	{
 		$existingColumnNames = static::getExistingColumns();
 		$existingIndexNames = static::getExistingIndices();
-		$update = false;
-		if ($existingColumnNames) {
-			$update = true;
-		}
-		$defs = self::getDefaultDefs();
+		$existingFKs = static::getExistingFKs();
 		$tableName = static::getTableName();
-		$extraDefs = static::getColumnDefinitions();
-		$finalDefs = array_merge($defs, $extraDefs);
+
+		$missingColumnDefs = array();
+		foreach ($columnDefs as $col => $def) {
+			if (!in_array($col, $existingColumnNames)) {
+				$missingColumnDefs[$col] = $def;
+			}
+		}
+		$query = "alter table $tableName";
+		foreach ($missingColumnDefs as $col => $def) {
+			$query .= " add column $col $def,";
+		}
+
+		foreach ($indexDefs as $index) {
+			$index_type = $index[0];
+			$index_name = $index[1];
+			$column_name = $index[2];
+			if (!in_array($index_name, $existingIndexNames)) {
+				$query .= " add $index_type $index_name ($column_name),";
+			}
+		}
+
+		$missing_fks = array();
+		foreach ($fkDefs as $fk) {
+			$missing = true;
+			foreach ($existingFKs as $efk) {
+				if ($fk->refTable == $efk->refTable && $fk->refColumn == $efk->refColumn) {
+					$missing = false;
+					break;
+				}
+			}
+			if ($missing) {
+				$missing_fks[] = $fk;
+			}
+		}
+		if ($missing_fks) {
+			$query .= " " . static::generateFKString(fkList: $missing_fks, forUpdate: true);
+		}
+		$query = rtrim($query, ",");
+		DBP::runQuery($query);
+	}
+
+	public static function createOrUpdateTable()
+	{
+		$baseColumnDefs = self::getDefaultDefs();
+		$extraColumnDefs = static::getColumnDefinitions();
+		$finalColumnDefs = array_merge($baseColumnDefs, $extraColumnDefs);
 		$indexDefs = static::getIndexDefinitions();
-		if (!$update) {
-			$query = "create table $tableName (";
-			foreach ($finalDefs as $col => $def) {
-				$query .= "$col $def,";
-			}
-			foreach ($indexDefs as $index) {
-				$index_type = $index[0];
-				$index_name = $index[1];
-				$column_name = $index[2];
-				$query .= "$index_type $index_name ($column_name),";
-			}
-			$query .= static::generateFKs();
-			$query = rtrim($query, ",");
-			$query .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
-			DBP::runQuery($query);
+		$fkDefs = static::getFKs();
+		if (static::getExistingColumns()) {
+			self::updateTable($finalColumnDefs, $indexDefs, $fkDefs);
 		} else {
-			$newColumnDefs = array();
-			foreach ($finalDefs as $col => $def) {
-				if (!in_array($col, $existingColumnNames)) {
-					$newColumnDefs[$col] = $def;
-				}
-			}
-			$query = "alter table $tableName";
-			foreach ($newColumnDefs as $col => $def) {
-				$query .= " add column $col $def,";
-			}
-
-			foreach ($indexDefs as $index) {
-				$index_type = $index[0];
-				$index_name = $index[1];
-				$column_name = $index[2];
-				if (!in_array($index_name, $existingIndexNames)) {
-					$query .= " add $index_type $index_name ($column_name),";
-				}
-			}
-
-			$query = rtrim($query, ",");
-			//echo $query;die;
-			DBP::runQuery($query);
+			self::createTable($finalColumnDefs, $indexDefs, $fkDefs);
 		}
 	}
 

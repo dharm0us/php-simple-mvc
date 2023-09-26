@@ -43,6 +43,21 @@ class BaseEntityTest extends PHPUnit\Framework\TestCase
             $this->getActualTableCreationString('players'),
             $this->expectedPlayersTableCreationString()
         );
+
+        $drop_fk_sql = "alter table " . DB_NAME . ".rankings drop foreign key fk_rankings_categoryId;";
+        $pdo->exec($drop_fk_sql);
+
+        $this->assertNotEquals(
+            $this->getActualTableCreationString('rankings'),
+            $this->expectedRankingsTableCreationString()
+        );
+
+        RankingEntity::createOrUpdateTable();
+
+        $this->assertEquals(
+            $this->getActualTableCreationString('rankings'),
+            $this->expectedRankingsTableCreationString()
+        );
     }
 
     public function testTableCreation()
