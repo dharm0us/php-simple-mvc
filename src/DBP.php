@@ -179,6 +179,19 @@ class DBP
         self::runQuery($query, array_values($fields));
     }
 
+    public static function insertMultiple($tableName, $fields_arr)
+    {
+        $query = 'INSERT INTO ' . $tableName;
+        $query .= '(`' . implode('`,`', array_keys($fields_arr[0])) . '`) VALUES ';
+        $insertData = array();
+        foreach ($fields_arr as $fields) {
+            $query .= '(' . implode(',', array_fill(0, count($fields), '?')) . '),';
+            $insertData = array_merge($insertData, array_values($fields));
+        }
+        $query = rtrim($query, ",");
+        self::runQuery($query, $insertData);
+    }
+
     protected static function getPartialUpdateStmt()
     {
         return function ($value) {
