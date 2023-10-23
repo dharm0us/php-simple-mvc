@@ -181,6 +181,9 @@ class DBP
 
     public static function insertMultiple($tableName, $fields_arr)
     {
+        if (!$fields_arr) {
+            return;
+        }
         $query = 'INSERT INTO ' . $tableName;
         $query .= '(`' . implode('`,`', array_keys($fields_arr[0])) . '`) VALUES ';
         $insertData = array();
