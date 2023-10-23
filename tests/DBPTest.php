@@ -26,17 +26,19 @@ class DBPTest extends PHPUnit\Framework\TestCase
         $this->assertEquals($fields_arr, $rows);
 
         DBP::runQuery("delete from " . CategoryEntity::getTableName());
+        $currTime = time();
         $cat1 = new CategoryEntity();
         $cat1->setCat("Boys");
         $cat1->setSubcat("U-12");
-        $cat1->setCreatedAt(time());
-        $cat1->setUpdatedAt(time());
+        $cat1->setCreatedAt($currTime);
+        $cat1->setUpdatedAt($currTime);
 
         $cat2 = new CategoryEntity();
         $cat2->setCat("Girls");
         $cat2->setSubcat("U-14");
-        $cat2->setCreatedAt(time());
-        $cat2->setUpdatedAt(time());
+        $cat2->setCreatedAt($currTime);
+        $cat2->setUpdatedAt($currTime);
+
         $categories = array($cat1->getFields(), $cat2->getFields());
         DBP::insertMultiple(CategoryEntity::getTableName(), $categories);
         $rows = DBP::getResultSet("select * from " . CategoryEntity::getTableName());
