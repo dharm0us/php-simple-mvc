@@ -12,7 +12,7 @@ if ('test' == DEPLOY_ENV) {
 	define('DB_HOST', '127.0.0.1');
 	define('DB_USER', 'root');
 	define('DB_PASS', 'root1234');
-	define('DB_NAME', 'testdb');
+	define('DB_NAME', 'testdb_mvc');
 }
 
 function catchableErrorHandler($errno, $errstr, $errfile, $errline)

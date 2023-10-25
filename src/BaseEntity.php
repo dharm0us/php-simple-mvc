@@ -2,8 +2,7 @@
 
 namespace SimpleMVC;
 
-use DBRW;
-
+require_once "DBRW.php";
 class BaseEntity
 {
 
