@@ -1,5 +1,7 @@
 <?php
 
+use Helper\DBRW;
+
 require_once 'test_setup.php';
 require_once 'PlayerEntity.php';
 require_once 'CategoryEntity.php';

@@ -2,7 +2,8 @@
 
 namespace SimpleMVC;
 
-require_once "DBRW.php";
+use Helper\DBRW;
+
 class BaseEntity
 {
 

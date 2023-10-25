@@ -1,7 +1,7 @@
 <?php
 
 set_time_limit(0);
-require_once 'vendor/autoload.php';
+include 'autoload.inc.php';
 date_default_timezone_set('Asia/Kolkata');
 ini_set('default_charset', 'UTF-8');
 mb_internal_encoding('UTF-8');

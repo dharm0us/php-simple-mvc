@@ -1,5 +1,7 @@
 <?php
 
+namespace Helper;
+
 use SimpleMVC\DBP;
 
 class DBRW extends DBP
