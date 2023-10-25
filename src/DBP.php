@@ -143,7 +143,7 @@ class DBP
                 $diff = ($at - $bt);
                 if ($diff > 2) {
                     if (static::$slowQueryErrorLog) {
-                        Log::error("Time Taken : $diff seconds", $bindings, $query);
+                        Log::error("Time Taken : $diff seconds", array_slice($bindings, 0, 10), substr($query, 0, 200));
                     }
                 }
             } catch (Exception $e) {
