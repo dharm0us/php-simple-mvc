@@ -15,6 +15,78 @@ class DBPTest extends PHPUnit\Framework\TestCase
         TestUtils::setUpTestDB();
     }
 
+    public function testPrivileges()
+    {
+        $adminQuery_1 = "create table testing_table (a int, b int)";
+        $adminQuery_2 = "drop table testing_table";
+        $writeQuery = "insert into testing_table values (1,2)";
+        $readQuery = "select * from testing_table";
+
+        $exception = null;
+        try {
+            DBR::runQuery($adminQuery_1);
+        } catch (Exception $e) {
+            $exception = $e;
+        }
+        $this->assertTrue($exception instanceof PDOException);
+        $this->assertTrue(str_starts_with($exception->getMessage(), 'SQLSTATE[42000]: Syntax error or access violation: 1142 CREATE command denied to user'));
+
+        $exception = null;
+        try {
+            DBW::runQuery($adminQuery_1);
+        } catch (Exception $e) {
+            $exception = $e;
+        }
+        $this->assertTrue($exception instanceof PDOException);
+        $this->assertTrue(str_starts_with($exception->getMessage(), 'SQLSTATE[42000]: Syntax error or access violation: 1142 CREATE command denied to user'));
+
+        $exception = null;
+        DBA::runQuery($adminQuery_1);
+
+        try {
+            DBR::runQuery($writeQuery);
+        } catch (Exception $e) {
+            $exception = $e;
+        }
+        $this->assertTrue($exception instanceof PDOException);
+        $this->assertTrue(str_starts_with($exception->getMessage(), 'SQLSTATE[42000]: Syntax error or access violation: 1142 INSERT command denied to user'));
+
+        DBW::runQuery($writeQuery);
+        DBA::runQuery($writeQuery);
+        $rows = DBR::getResultSet($readQuery);
+        $this->assertEquals(2, count($rows));
+        $this->assertEquals(1, $rows[0]['a']);
+        $this->assertEquals(2, $rows[1]['b']);
+
+        $exception = null;
+        try {
+            DBR::runQuery($adminQuery_2);
+        } catch (Exception $e) {
+            $exception = $e;
+        }
+        $this->assertTrue($exception instanceof PDOException);
+        $this->assertTrue(str_starts_with($exception->getMessage(), 'SQLSTATE[42000]: Syntax error or access violation: 1142 DROP command denied to user'));
+
+        $exception = null;
+        try {
+            DBW::runQuery($adminQuery_2);
+        } catch (Exception $e) {
+            $exception = $e;
+        }
+        $this->assertTrue($exception instanceof PDOException);
+        $this->assertTrue(str_starts_with($exception->getMessage(), 'SQLSTATE[42000]: Syntax error or access violation: 1142 DROP command denied to user'));
+
+        DBW::runQuery($writeQuery);
+        DBA::runQuery($writeQuery);
+        $rows = DBW::getResultSet($readQuery);
+        $this->assertEquals(4, count($rows));
+        $this->assertEquals(1, $rows[2]['a']);
+        $this->assertEquals(2, $rows[3]['b']);
+
+        DBA::runQuery($adminQuery_2);
+    }
+
+
     public function testInsertMultiple()
     {
         DBA::runQuery("drop table if exists test_table");
