@@ -36,19 +36,19 @@ class DBP
         self::$logQueryExceptions = false;
     }
 
-    public static function configure($db_host, $db_name, $db_user, $db_pass)
+    public static function configure()
     {
-        self::$dbHost = $db_host;
-        self::$dbName = $db_name;
-        self::$dbUser = $db_user;
-        self::$dbPass = $db_pass;
+        self::$dbHost = "";
+        self::$dbName = "";
+        self::$dbUser = "";
+        self::$dbPass = "";
         self::$dbh = null;
     }
 
     protected static function init()
     {
         if (!self::isConfigured()) {
-            self::configure(DB_HOST, DB_NAME, DB_USER, DB_PASS);
+            static::configure();
         }
         try {
             $dsn = 'mysql:host=' . self::$dbHost . ';dbname=' . self::$dbName . ';';

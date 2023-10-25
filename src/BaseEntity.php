@@ -2,6 +2,8 @@
 
 namespace SimpleMVC;
 
+use DBRW;
+
 class BaseEntity
 {
 
@@ -96,7 +98,7 @@ class BaseEntity
 		if (!$row) {
 			$columnNames = $this->getCommaSeparatedColumnNames();
 			$query = "select $columnNames from " . static::getTableName() . " where id = :id";
-			$rows = DBP::getResultSet($query, array('id' => $this->id));
+			$rows = DBRW::getResultSet($query, array('id' => $this->id));
 			if ($rows) {
 				$row = $rows[0];
 			}
@@ -205,7 +207,7 @@ WHERE
     AND TABLE_SCHEMA = :db_name 
     AND TABLE_NAME = :table_name;";
 		$bindings = array('db_name' => DB_NAME, 'table_name' => static::getTableName());
-		$rows = DBP::getResultSet($query, $bindings);
+		$rows = DBRW::getResultSet($query, $bindings);
 		foreach ($rows as $row) {
 			$columnName = $row['COLUMN_NAME'];
 			$refTable = $row['REFERENCED_TABLE_NAME'];
@@ -221,7 +223,7 @@ WHERE
 		$indices = array();
 		$query = "SELECT `INDEX_NAME` FROM `INFORMATION_SCHEMA`.`STATISTICS` WHERE `TABLE_SCHEMA`=:db_name AND `TABLE_NAME`=:table_name";
 		$bindings = array('db_name' => DB_NAME, 'table_name' => static::getTableName());
-		$rows = DBP::getResultSet($query, $bindings);
+		$rows = DBRW::getResultSet($query, $bindings);
 		foreach ($rows as $row) {
 			$indices[] = $row['INDEX_NAME'];
 		}
@@ -233,7 +235,7 @@ WHERE
 		$cols = array();
 		$query = "SELECT `COLUMN_NAME` as col FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`=:db_name AND `TABLE_NAME`=:table_name";
 		$bindings = array('db_name' => DB_NAME, 'table_name' => static::getTableName());
-		$rows = DBP::getResultSet($query, $bindings);
+		$rows = DBRW::getResultSet($query, $bindings);
 		foreach ($rows as $row) {
 			$cols[] = $row['col'];
 		}
@@ -276,7 +278,7 @@ WHERE
 		$query .= static::generateFKString(fkList: $fkDefs, forUpdate: false);
 		$query = rtrim($query, ",");
 		$query .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
-		DBP::runQuery($query);
+		DBRW::runQuery($query);
 	}
 
 	private static function updateTable($columnDefs, $indexDefs, $fkDefs)
@@ -323,7 +325,7 @@ WHERE
 			$query .= " " . static::generateFKString(fkList: $missing_fks, forUpdate: true);
 		}
 		$query = rtrim($query, ",");
-		DBP::runQuery($query);
+		DBRW::runQuery($query);
 	}
 
 	public static function createOrUpdateTable()
@@ -345,16 +347,16 @@ WHERE
 		if (!$this->id) {
 			$this->createdAt = time();
 			$this->updatedAt = $this->createdAt;
-			DBP::insert(static::getTableName(), $this->getFields());
-			$this->id = DBP::getLastInsertId();
+			DBRW::insert(static::getTableName(), $this->getFields());
+			$this->id = DBRW::getLastInsertId();
 		} else {
 			$this->updatedAt = time();
-			DBP::update(static::getTableName(), $this->getFields(), $this->getId());
+			DBRW::update(static::getTableName(), $this->getFields(), $this->getId());
 		}
 	}
 
 	public function delete()
 	{
-		DBP::delete(static::getTableName(), $this->getId());
+		DBRW::delete(static::getTableName(), $this->getId());
 	}
 }

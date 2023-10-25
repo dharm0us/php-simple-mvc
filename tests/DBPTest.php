@@ -1,7 +1,5 @@
 <?php
 
-use SimpleMVC\DBP;
-
 require_once 'test_setup.php';
 require_once 'PlayerEntity.php';
 require_once 'CategoryEntity.php';
@@ -15,17 +13,17 @@ class DBPTest extends PHPUnit\Framework\TestCase
 
     public function testInsertMultiple()
     {
-        DBP::runQuery("drop table if exists test_table");
-        DBP::runQuery("create table test_table (a int, b int)");
+        DBRW::runQuery("drop table if exists test_table");
+        DBRW::runQuery("create table test_table (a int, b int)");
         $fields_arr = array();
         $fields_arr[] = array("a" => 9, "b" => 10);
         $fields_arr[] = array("a" => 11, "b" => 12);
-        DBP::insertMultiple("test_table", $fields_arr);
-        $rows = DBP::getResultSet("select * from test_table");
+        DBRW::insertMultiple("test_table", $fields_arr);
+        $rows = DBRW::getResultSet("select * from test_table");
         $this->assertEquals(2, count($rows));
         $this->assertEquals($fields_arr, $rows);
 
-        DBP::runQuery("delete from " . CategoryEntity::getTableName());
+        DBRW::runQuery("delete from " . CategoryEntity::getTableName());
         $currTime = time();
         $cat1 = new CategoryEntity();
         $cat1->setCat("Boys");
@@ -40,8 +38,8 @@ class DBPTest extends PHPUnit\Framework\TestCase
         $cat2->setUpdatedAt($currTime);
 
         $categories = array($cat1->getFields(), $cat2->getFields());
-        DBP::insertMultiple(CategoryEntity::getTableName(), $categories);
-        $rows = DBP::getResultSet("select * from " . CategoryEntity::getTableName());
+        DBRW::insertMultiple(CategoryEntity::getTableName(), $categories);
+        $rows = DBRW::getResultSet("select * from " . CategoryEntity::getTableName());
         $this->assertEquals($cat1->getCat(), "Boys");
         $this->assertEquals($cat1->getSubcat(), "U-12");
         $this->assertEquals($cat2->getCat(), "Girls");
