@@ -10,8 +10,12 @@ ini_set('display_errors', 1);
 
 if ('test' == DEPLOY_ENV) {
 	define('DB_HOST', '127.0.0.1');
-	define('DB_USER', 'root');
-	define('DB_PASS', 'root1234');
+	define('DBR_USER', 'r_user');
+	define('DBR_PASS', 'r_pwd');
+	define('DBW_USER', 'w_user');
+	define('DBW_PASS', 'w_pwd');
+	define('DBA_USER', 'a_user');
+	define('DBA_PASS', 'a_pwd');
 	define('DB_NAME', 'testdb_mvc');
 }
 

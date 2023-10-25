@@ -12,11 +12,13 @@ class TestUtils
     public static function setUpTestDB()
     {
         try {
-            $pdo = new PDO("mysql:host=127.0.0.1", DB_USER, DB_PASS);
+            $pdo = new PDO("mysql:host=127.0.0.1", 'root', 'root1234');
         } catch (PDOException $e) {
             die("Could not connect to the database: " . $e->getMessage());
         }
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $creds_sql = file_get_contents('tests/test_data/user_creds.sql');
+        $pdo->exec($creds_sql);
 
         $drop_db_sql = "drop DATABASE if exists " . DB_NAME;
         $pdo->exec($drop_db_sql);

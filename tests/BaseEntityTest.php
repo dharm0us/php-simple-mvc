@@ -12,7 +12,7 @@ class BaseEntityTest extends PHPUnit\Framework\TestCase
 
     public function testTableUpdation()
     {
-        $pdo = new PDO("mysql:host=127.0.0.1", DB_USER, DB_PASS);
+        $pdo = new PDO("mysql:host=127.0.0.1", DBA_USER, DBA_PASS);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         $drop_column_sql = "alter table " . DB_NAME . ".players drop column registration";
@@ -79,7 +79,7 @@ class BaseEntityTest extends PHPUnit\Framework\TestCase
     private function getActualTableCreationString($tableName)
     {
         try {
-            $pdo = new PDO("mysql:host=127.0.0.1", DB_USER, DB_PASS);
+            $pdo = new PDO("mysql:host=127.0.0.1", DBR_USER, DBR_PASS);
         } catch (PDOException $e) {
             die("Could not connect to the database: " . $e->getMessage());
         }

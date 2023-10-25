@@ -1,17 +1,16 @@
 <?php
 
-namespace Helper;
+namespace SimpleMVC;
 
-use SimpleMVC\DBP;
-
-class DBRW extends DBP
+class DBW extends DBP
 {
+
     public static function configure()
     {
         self::$dbHost = DB_HOST;
         self::$dbName = DB_NAME;
-        self::$dbUser = DB_USER;
-        self::$dbPass = DB_PASS;
+        self::$dbUser = DBW_USER;
+        self::$dbPass = DBW_PASS;
         self::$dbh = null;
     }
 }
