@@ -18,45 +18,45 @@ class DBP
 
     public static function enableSlowQueryErrorLog()
     {
-        self::$slowQueryErrorLog = true;
+        static::$slowQueryErrorLog = true;
     }
 
     public static function disableSlowQueryErrorLog()
     {
-        self::$slowQueryErrorLog = false;
+        static::$slowQueryErrorLog = false;
     }
 
     public static function enableQueryExceptionLog()
     {
-        self::$logQueryExceptions = true;
+        static::$logQueryExceptions = true;
     }
 
     public static function disableQueryExceptionLog()
     {
-        self::$logQueryExceptions = false;
+        static::$logQueryExceptions = false;
     }
 
     public static function configure()
     {
-        self::$dbHost = "";
-        self::$dbName = "";
-        self::$dbUser = "";
-        self::$dbPass = "";
-        self::$dbh = null;
+        static::$dbHost = "";
+        static::$dbName = "";
+        static::$dbUser = "";
+        static::$dbPass = "";
+        static::$dbh = null;
     }
 
     protected static function init()
     {
-        if (!self::isConfigured()) {
+        if (!static::isConfigured()) {
             static::configure();
         }
         try {
-            $dsn = 'mysql:host=' . self::$dbHost . ';dbname=' . self::$dbName . ';';
-            self::$dbh = new PDO($dsn, self::$dbUser, self::$dbPass, array(
+            $dsn = 'mysql:host=' . static::$dbHost . ';dbname=' . static::$dbName . ';';
+            static::$dbh = new PDO($dsn, static::$dbUser, static::$dbPass, array(
                 PDO::ATTR_PERSISTENT => true
             ));
-            self::$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            self::$sth = null;
+            static::$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            static::$sth = null;
         } catch (Exception $e) {
             Log::error($e->getMessage());
         }
@@ -64,23 +64,23 @@ class DBP
 
     public static function getResultSet($query, $bindings = array())
     {
-        self::runQuery($query, $bindings);
-        return self::getRows();
+        static::runQuery($query, $bindings);
+        return static::getRows();
     }
 
     public static function beginTransaction()
     {
-        self::runQuery('start transaction');
+        static::runQuery('start transaction');
     }
 
     public static function commit()
     {
-        self::runQuery('commit');
+        static::runQuery('commit');
     }
 
     public static function rollback()
     {
-        self::runQuery('rollback');
+        static::runQuery('rollback');
     }
 
     public static function getPlaceHolderStringAndIdBindings(array $arr, $prefix = 'id')
@@ -99,27 +99,27 @@ class DBP
     public static function getTableRowsCount($table)
     {
         $query = "select count(1) as cnt from $table";
-        self::runQuery($query);
-        $rows = self::getRows();
+        static::runQuery($query);
+        $rows = static::getRows();
         return $rows[0]['cnt'];
     }
 
     public static function getCountFromQuery($query, array $bindings = array())
     {
         $query = "select count(1) as cnt from ($query)t";
-        self::runQuery($query, $bindings);
-        $rows = self::getRows();
+        static::runQuery($query, $bindings);
+        $rows = static::getRows();
         return $rows[0]['cnt'];
     }
 
     public static function getLastInsertId()
     {
-        return self::$dbh->lastInsertId();
+        return static::$dbh->lastInsertId();
     }
 
     protected static function isConfigured()
     {
-        return (self::$dbHost && self::$dbName && self::$dbUser);
+        return (static::$dbHost && static::$dbName && static::$dbUser);
     }
 
     public static function runQuery($query, $bindings = array(), $attempt = 0)
@@ -130,32 +130,32 @@ class DBP
                 if ((stripos($query, "select") !== 0) && (isset($_SESSION['viewOnly']))) {
                     return;
                 }
-                if (!self::$dbh) {
-                    self::init();
+                if (!static::$dbh) {
+                    static::init();
                 }
                 $bt = microtime(true);
-                if (!self::$dbh) {
+                if (!static::$dbh) {
                     throw new Exception('DBH is null');
                 }
-                self::$sth = self::$dbh->prepare($query);
-                self::$sth->execute($bindings);
+                static::$sth = static::$dbh->prepare($query);
+                static::$sth->execute($bindings);
                 $at = microtime(true);
                 $diff = ($at - $bt);
                 if ($diff > 2) {
-                    if (self::$slowQueryErrorLog) {
+                    if (static::$slowQueryErrorLog) {
                         Log::error("Time Taken : $diff seconds", $bindings, $query);
                     }
                 }
             } catch (Exception $e) {
                 $error = $e->getMessage();
-                if (self::$logQueryExceptions) {
+                if (static::$logQueryExceptions) {
                     Log::error($error, $bindings, $query);
                 }
                 if (($e->getCode() == 'HY000') && ($attempt < $maxAttempts)) { //MySql server has gone away and other General errors denoted by HY000
                     Log::error("Sleeping before attempting again to handle HY000 attempt = $attempt");
-                    self::$dbh = null;
+                    static::$dbh = null;
                     sleep(5);
-                    self::runQuery($query, $bindings, $attempt + 1);
+                    static::runQuery($query, $bindings, $attempt + 1);
                 } else {
                     throw $e;
                 }
@@ -168,7 +168,7 @@ class DBP
     public static function delete($tableName, $id)
     {
         $query = "delete from $tableName where id = :id";
-        self::runQuery($query, array('id' => $id));
+        static::runQuery($query, array('id' => $id));
     }
 
     public static function insert($tableName, $fields)
@@ -176,7 +176,7 @@ class DBP
         $query = 'INSERT INTO ' . $tableName;
         $query .= '(`' . implode('`,`', array_keys($fields)) . '`) ';
         $query .= 'VALUES (' . implode(',', array_fill(0, count($fields), '?')) . ')';
-        self::runQuery($query, array_values($fields));
+        static::runQuery($query, array_values($fields));
     }
 
     public static function insertMultiple($tableName, $fields_arr)
@@ -192,7 +192,7 @@ class DBP
             $insertData = array_merge($insertData, array_values($fields));
         }
         $query = rtrim($query, ",");
-        self::runQuery($query, $insertData);
+        static::runQuery($query, $insertData);
     }
 
     protected static function getPartialUpdateStmt()
@@ -205,20 +205,20 @@ class DBP
     public static function update($tableName, $fields, $id)
     {
         $query = 'UPDATE ' . $tableName . ' SET ';
-        $query .= implode(',', array_map(self::getPartialUpdateStmt(), array_keys($fields)));
+        $query .= implode(',', array_map(static::getPartialUpdateStmt(), array_keys($fields)));
         $query .= " WHERE id = :id";
-        self::runQuery($query, array_merge(array('id' => $id), $fields));
+        static::runQuery($query, array_merge(array('id' => $id), $fields));
     }
 
     protected static function getRows()
     {
-        return self::$sth->fetchAll(PDO::FETCH_ASSOC);
+        return static::$sth->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public static function getSingleResult($query, $bindings = array())
     {
-        self::runQuery($query, $bindings);
-        $rows = self::getRows();
+        static::runQuery($query, $bindings);
+        $rows = static::getRows();
         if (count($rows) > 1) {
             throw new NonUniqueResultException("$query has Multiple results,  bindings = " . implode(",", $bindings));
         } else {
@@ -229,7 +229,7 @@ class DBP
     public static function getObject($query, array $bindings, $className)
     {
         $obj = null;
-        $row = self::getSingleResult($query, $bindings);
+        $row = static::getSingleResult($query, $bindings);
         if ($row) {
             $obj = new $className();
             $obj->buildFromDB($row);
