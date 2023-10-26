@@ -205,7 +205,7 @@ WHERE
     AND TABLE_SCHEMA = :db_name 
     AND TABLE_NAME = :table_name;";
 		$bindings = array('db_name' => DB_NAME, 'table_name' => static::getTableName());
-		$rows = DBA::getResultSet($query, $bindings);
+		$rows = DBR::getResultSet($query, $bindings);
 		foreach ($rows as $row) {
 			$columnName = $row['COLUMN_NAME'];
 			$refTable = $row['REFERENCED_TABLE_NAME'];
@@ -221,7 +221,7 @@ WHERE
 		$indices = array();
 		$query = "SELECT `INDEX_NAME` FROM `INFORMATION_SCHEMA`.`STATISTICS` WHERE `TABLE_SCHEMA`=:db_name AND `TABLE_NAME`=:table_name";
 		$bindings = array('db_name' => DB_NAME, 'table_name' => static::getTableName());
-		$rows = DBA::getResultSet($query, $bindings);
+		$rows = DBR::getResultSet($query, $bindings);
 		foreach ($rows as $row) {
 			$indices[] = $row['INDEX_NAME'];
 		}
@@ -233,7 +233,7 @@ WHERE
 		$cols = array();
 		$query = "SELECT `COLUMN_NAME` as col FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`=:db_name AND `TABLE_NAME`=:table_name";
 		$bindings = array('db_name' => DB_NAME, 'table_name' => static::getTableName());
-		$rows = DBA::getResultSet($query, $bindings);
+		$rows = DBR::getResultSet($query, $bindings);
 		foreach ($rows as $row) {
 			$cols[] = $row['col'];
 		}
