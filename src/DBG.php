@@ -2,7 +2,7 @@
 
 namespace SimpleMVC;
 
-class DBA extends DBP
+class DBG extends DBP
 {
 
     protected static $dbh = null;
@@ -16,8 +16,8 @@ class DBA extends DBP
     {
         self::$dbHost = DB_HOST;
         self::$dbName = DB_NAME;
-        self::$dbUser = DBA_USER;
-        self::$dbPass = DBA_PASS;
+        self::$dbUser = DBG_USER;
+        self::$dbPass = DBG_PASS;
         self::$dbh = null;
     }
 }

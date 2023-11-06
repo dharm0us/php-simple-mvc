@@ -96,7 +96,7 @@ class BaseEntity
 		if (!$row) {
 			$columnNames = $this->getCommaSeparatedColumnNames();
 			$query = "select $columnNames from " . static::getTableName() . " where id = :id";
-			$rows = DBR::getResultSet($query, array('id' => $this->id));
+			$rows = DBG::getResultSet($query, array('id' => $this->id));
 			if ($rows) {
 				$row = $rows[0];
 			}
@@ -205,7 +205,7 @@ WHERE
     AND TABLE_SCHEMA = :db_name 
     AND TABLE_NAME = :table_name;";
 		$bindings = array('db_name' => DB_NAME, 'table_name' => static::getTableName());
-		$rows = DBR::getResultSet($query, $bindings);
+		$rows = DBG::getResultSet($query, $bindings);
 		foreach ($rows as $row) {
 			$columnName = $row['COLUMN_NAME'];
 			$refTable = $row['REFERENCED_TABLE_NAME'];
@@ -221,7 +221,7 @@ WHERE
 		$indices = array();
 		$query = "SELECT `INDEX_NAME` FROM `INFORMATION_SCHEMA`.`STATISTICS` WHERE `TABLE_SCHEMA`=:db_name AND `TABLE_NAME`=:table_name";
 		$bindings = array('db_name' => DB_NAME, 'table_name' => static::getTableName());
-		$rows = DBR::getResultSet($query, $bindings);
+		$rows = DBG::getResultSet($query, $bindings);
 		foreach ($rows as $row) {
 			$indices[] = $row['INDEX_NAME'];
 		}
@@ -233,7 +233,7 @@ WHERE
 		$cols = array();
 		$query = "SELECT `COLUMN_NAME` as col FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`=:db_name AND `TABLE_NAME`=:table_name";
 		$bindings = array('db_name' => DB_NAME, 'table_name' => static::getTableName());
-		$rows = DBR::getResultSet($query, $bindings);
+		$rows = DBG::getResultSet($query, $bindings);
 		foreach ($rows as $row) {
 			$cols[] = $row['col'];
 		}
@@ -276,7 +276,7 @@ WHERE
 		$query .= static::generateFKString(fkList: $fkDefs, forUpdate: false);
 		$query = rtrim($query, ",");
 		$query .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
-		DBA::runQuery($query);
+		DBG::runQuery($query);
 	}
 
 	private static function updateTable($columnDefs, $indexDefs, $fkDefs)
@@ -323,7 +323,7 @@ WHERE
 			$query .= " " . static::generateFKString(fkList: $missing_fks, forUpdate: true);
 		}
 		$query = rtrim($query, ",");
-		DBA::runQuery($query);
+		DBG::runQuery($query);
 	}
 
 	public static function createOrUpdateTable()
@@ -345,16 +345,16 @@ WHERE
 		if (!$this->id) {
 			$this->createdAt = time();
 			$this->updatedAt = $this->createdAt;
-			DBW::insert(static::getTableName(), $this->getFields());
-			$this->id = DBW::getLastInsertId();
+			DBG::insert(static::getTableName(), $this->getFields());
+			$this->id = DBG::getLastInsertId();
 		} else {
 			$this->updatedAt = time();
-			DBW::update(static::getTableName(), $this->getFields(), $this->getId());
+			DBG::update(static::getTableName(), $this->getFields(), $this->getId());
 		}
 	}
 
 	public function delete()
 	{
-		DBW::delete(static::getTableName(), $this->getId());
+		DBG::delete(static::getTableName(), $this->getId());
 	}
 }

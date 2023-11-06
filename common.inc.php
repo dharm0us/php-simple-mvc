@@ -14,8 +14,8 @@ if ('test' == DEPLOY_ENV) {
 	define('DBR_PASS', 'r_pwd');
 	define('DBW_USER', 'w_user');
 	define('DBW_PASS', 'w_pwd');
-	define('DBA_USER', 'a_user');
-	define('DBA_PASS', 'a_pwd');
+	define('DBG_USER', 'a_user');
+	define('DBG_PASS', 'a_pwd');
 	define('DB_NAME', 'testdb_mvc');
 }
 

@@ -12,7 +12,7 @@ class BaseEntityTest extends PHPUnit\Framework\TestCase
 
     public function testTableUpdation()
     {
-        $pdo = new PDO("mysql:host=127.0.0.1", DBA_USER, DBA_PASS);
+        $pdo = new PDO("mysql:host=127.0.0.1", DBG_USER, DBG_PASS);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         $drop_column_sql = "alter table " . DB_NAME . ".players drop column registration";
