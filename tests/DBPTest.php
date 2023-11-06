@@ -1,6 +1,6 @@
 <?php
 
-use SimpleMVC\DBA;
+use SimpleMVC\DBG;
 use SimpleMVC\DBR;
 use SimpleMVC\DBW;
 
@@ -41,7 +41,7 @@ class DBPTest extends PHPUnit\Framework\TestCase
         $this->assertTrue(str_starts_with($exception->getMessage(), 'SQLSTATE[42000]: Syntax error or access violation: 1142 CREATE command denied to user'));
 
         $exception = null;
-        DBA::runQuery($adminQuery_1);
+        DBG::runQuery($adminQuery_1);
 
         try {
             DBR::runQuery($writeQuery);
@@ -52,7 +52,7 @@ class DBPTest extends PHPUnit\Framework\TestCase
         $this->assertTrue(str_starts_with($exception->getMessage(), 'SQLSTATE[42000]: Syntax error or access violation: 1142 INSERT command denied to user'));
 
         DBW::runQuery($writeQuery);
-        DBA::runQuery($writeQuery);
+        DBG::runQuery($writeQuery);
         $rows = DBR::getResultSet($readQuery);
         $this->assertEquals(2, count($rows));
         $this->assertEquals(1, $rows[0]['a']);
@@ -77,20 +77,20 @@ class DBPTest extends PHPUnit\Framework\TestCase
         $this->assertTrue(str_starts_with($exception->getMessage(), 'SQLSTATE[42000]: Syntax error or access violation: 1142 DROP command denied to user'));
 
         DBW::runQuery($writeQuery);
-        DBA::runQuery($writeQuery);
+        DBG::runQuery($writeQuery);
         $rows = DBW::getResultSet($readQuery);
         $this->assertEquals(4, count($rows));
         $this->assertEquals(1, $rows[2]['a']);
         $this->assertEquals(2, $rows[3]['b']);
 
-        DBA::runQuery($adminQuery_2);
+        DBG::runQuery($adminQuery_2);
     }
 
 
     public function testInsertMultiple()
     {
-        DBA::runQuery("drop table if exists test_table");
-        DBA::runQuery("create table test_table (a int, b int)");
+        DBG::runQuery("drop table if exists test_table");
+        DBG::runQuery("create table test_table (a int, b int)");
         $fields_arr = array();
         $fields_arr[] = array("a" => 9, "b" => 10);
         $fields_arr[] = array("a" => 11, "b" => 12);
