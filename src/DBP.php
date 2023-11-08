@@ -141,7 +141,7 @@ class DBP
                 static::$sth->execute($bindings);
                 $at = microtime(true);
                 $diff = ($at - $bt);
-                if ($diff > 2) {
+                if ($diff > SLOW_QUERY_THRESHOLD) {
                     if (static::$slowQueryErrorLog) {
                         Log::error("Time Taken : $diff seconds", array_slice($bindings, 0, 10), substr($query, 0, 200));
                     }

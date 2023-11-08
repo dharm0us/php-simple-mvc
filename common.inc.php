@@ -8,6 +8,7 @@ mb_internal_encoding('UTF-8');
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+define('SLOW_QUERY_THRESHOLD', 2);
 if ('test' == DEPLOY_ENV) {
 	define('DB_HOST', '127.0.0.1');
 	define('DBR_USER', 'r_user');
