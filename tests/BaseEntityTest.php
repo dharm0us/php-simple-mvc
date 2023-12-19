@@ -76,6 +76,34 @@ class BaseEntityTest extends PHPUnit\Framework\TestCase
         );
     }
 
+    public function testFindByFields()
+    {
+        $p = new PlayerEntity();
+        $p->setName("suresh");
+        $p->setRegistration("223456");
+        $p->save();
+        $rows = PlayerEntity::findByFields(array('name' => 'suresh', 'registration' => '223456'));
+        $this->assertEquals($p->getName(), $rows[0]['name']);
+        $this->assertEquals($p->getRegistration(), $rows[0]['registration']);
+    }
+
+    public function testFindById()
+    {
+        $p = new PlayerEntity();
+        $p->setName("ramesh");
+        $p->setRegistration("123456");
+        $p->save();
+        $newId = $p->getId();
+        $row = PlayerEntity::findById($newId);
+        $this->assertEquals($p->getName(), $row['name']);
+        $this->assertEquals($p->getRegistration(), $row['registration']);
+
+        $p->setIsDeleted(1);
+        $p->save();
+        $row = PlayerEntity::findById($newId);
+        $this->assertEquals($row, array());
+    }
+
     private function getActualTableCreationString($tableName)
     {
         try {

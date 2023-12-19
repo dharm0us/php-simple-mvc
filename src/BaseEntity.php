@@ -109,6 +109,31 @@ class BaseEntity
 		}
 	}
 
+	public static function findByFields(array $fields): array
+	{
+		if (!$fields) {
+			return array();
+		}
+		$query = 'select * from ' . static::getTableName();
+		$query .= ' where (isDeleted = 0 or isDeleted is null) and ';
+		$bindings = array();
+		foreach ($fields as $fieldName => $fieldValue) {
+			$query .= " $fieldName = :$fieldName and";
+			$bindings[$fieldName] = $fieldValue;
+		}
+		$query = substr($query, 0, strlen($query) - 4); //remove " and" from the end 
+		return DBG::getResultSet($query, $bindings);
+	}
+
+	public static function findById(int $id): array
+	{
+		$rows = static::findByFields(array("id" => $id));
+		if ($rows) {
+			return $rows[0];
+		}
+		return array();
+	}
+
 	private function fillThisWithDBValues($row)
 	{
 		$fieldNames = static::getColumnNames();
