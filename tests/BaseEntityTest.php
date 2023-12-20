@@ -102,6 +102,11 @@ class BaseEntityTest extends PHPUnit\Framework\TestCase
         $p->save();
         $row = PlayerEntity::findById($newId);
         $this->assertEquals($row, array());
+
+        $row = PlayerEntity::findById($newId, false); //fetch deleted rows also
+        $this->assertEquals($p->getName(), $row['name']);
+        $this->assertEquals($p->getRegistration(), $row['registration']);
+        $this->assertTrue($p->getIsDeleted() === 1);
     }
 
     private function getActualTableCreationString($tableName)

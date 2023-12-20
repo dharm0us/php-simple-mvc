@@ -109,25 +109,27 @@ class BaseEntity
 		}
 	}
 
-	public static function findByFields(array $fields): array
+	public static function findByFields(array $fields, bool $ignoreDeleted = true): array
 	{
 		if (!$fields) {
 			return array();
 		}
-		$query = 'select * from ' . static::getTableName();
-		$query .= ' where (isDeleted = 0 or isDeleted is null) and ';
+		$query = 'select * from ' . static::getTableName() . ' where ';
+		if ($ignoreDeleted) {
+			$query .= '(isDeleted = 0 or isDeleted is null) and ';
+		}
 		$bindings = array();
 		foreach ($fields as $fieldName => $fieldValue) {
-			$query .= " $fieldName = :$fieldName and";
+			$query .= "$fieldName = :$fieldName and ";
 			$bindings[$fieldName] = $fieldValue;
 		}
-		$query = substr($query, 0, strlen($query) - 4); //remove " and" from the end 
+		$query = substr($query, 0, strlen($query) - 4); //remove "and " from the end 
 		return DBG::getResultSet($query, $bindings);
 	}
 
-	public static function findById(int $id): array
+	public static function findById(int $id, bool $ignoreDeleted = true): array
 	{
-		$rows = static::findByFields(array("id" => $id));
+		$rows = static::findByFields(array("id" => $id), $ignoreDeleted);
 		if ($rows) {
 			return $rows[0];
 		}
