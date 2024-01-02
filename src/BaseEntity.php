@@ -5,7 +5,7 @@ namespace SimpleMVC;
 class BaseEntity
 {
 
-	protected int $id = 0;
+	protected ?int $id = 0;
 	protected $createdAt;
 	protected $updatedAt;
 	protected $createdBy;
