@@ -15,7 +15,12 @@ class DBP
     protected static $dbName = null;
     protected static $dbUser = null;
     protected static $dbPass = null;
-    public static $logQuereies = false;
+    protected static $logQuereies = false;
+
+    public static function setQueryLog($val)
+    {
+        static::$logQuereies = $val;
+    }
 
     public static function enableSlowQueryErrorLog()
     {
