@@ -15,6 +15,7 @@ class DBP
     protected static $dbName = null;
     protected static $dbUser = null;
     protected static $dbPass = null;
+    public static $logQuereies = false;
 
     public static function enableSlowQueryErrorLog()
     {
@@ -124,6 +125,9 @@ class DBP
 
     public static function runQuery($query, $bindings = array(), $attempt = 0)
     {
+        if (static::$logQuereies) {
+            Log::info($query);
+        }
         $maxAttempts = 2;
         if ($attempt < $maxAttempts) {
             try {
