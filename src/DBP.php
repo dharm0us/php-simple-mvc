@@ -150,10 +150,17 @@ class DBP
                 static::$sth->execute($bindings);
                 $at = microtime(true);
                 $diff = ($at - $bt);
-                if ($diff > SLOW_QUERY_THRESHOLD) {
-                    if (static::$slowQueryErrorLog) {
-                        Log::error("Time Taken : $diff seconds", array_slice($bindings, 0, 10), substr($query, 0, 200));
+                if ($diff> SLOW_QUERY_THRESHOLD && static::$slowQueryErrorLog) {
+                    $backtrace = debug_backtrace();
+                    $traceString = '';
+                    foreach ($backtrace as $trace) {
+                        if (isset($trace['class'], $trace['function'])) {
+                            $traceString .= $trace['class'] . '::' . $trace['function'] . PHP_EOL;
+                        } elseif (isset($trace['function'])) {
+                            $traceString .= $trace['function'] . PHP_EOL; // For non-class functions
+                        }
                     }
+                    Log::error("Time Taken : $diff seconds", array_slice($bindings, 0, 10), substr($query, 0, 400), $traceString);
                 }
             } catch (Exception $e) {
                 $error = $e->getMessage();
