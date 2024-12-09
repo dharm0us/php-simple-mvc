@@ -33,6 +33,11 @@ class DBP
         static::$slowQueryErrorLog = false;
     }
 
+    public static function setSlowQueryBackTraceLog($val)
+    {
+        static::$slowQueryBackTraceLog = $val;
+    }
+
     public static function enableQueryExceptionLog()
     {
         static::$logQueryExceptions = true;
