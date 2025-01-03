@@ -203,12 +203,13 @@ class DBP
         static::runQuery($query, array_values($fields));
     }
 
-    public static function insertMultiple($tableName, $fields_arr)
+    public static function insertMultiple($tableName, $fields_arr, $ignore = false)
     {
         if (!$fields_arr) {
             return;
         }
-        $query = 'INSERT INTO ' . $tableName;
+        $query = 'INSERT' . ($ignore ? ' IGNORE' : '') . ' INTO ' . $tableName;
+
         $query .= '(`' . implode('`,`', array_keys($fields_arr[0])) . '`) VALUES ';
         $insertData = array();
         foreach ($fields_arr as $fields) {
