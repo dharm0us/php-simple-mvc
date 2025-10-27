@@ -3,6 +3,7 @@ require_once 'test_setup.php';
 require_once 'PlayerEntity.php';
 require_once 'CategoryEntity.php';
 require_once 'RankingEntity.php';
+require_once 'TestEntity.php';
 class BaseEntityTest extends PHPUnit\Framework\TestCase
 {
     public function setUp(): void
@@ -57,6 +58,24 @@ class BaseEntityTest extends PHPUnit\Framework\TestCase
         $this->assertEquals(
             $this->getActualTableCreationString('rankings'),
             $this->expectedRankingsTableCreationString()
+        );
+    }
+
+    public function testGetQueryStringForIndicesAndFKs()
+    {
+        $expected = 'alter table test_entity add FULLTEXT name_idx (name), add UNIQUE KEY registration_idx (registration), ADD CONSTRAINT fk_test_entity_playerId FOREIGN KEY (playerId) REFERENCES  players(id) ON DELETE NO ACTION ON UPDATE NO ACTION,ADD CONSTRAINT fk_test_entity_categoryId FOREIGN KEY (categoryId) REFERENCES  user_notes(id) ON DELETE NO ACTION ON UPDATE NO ACTION';
+        $this->assertEquals(
+            $expected,
+            TestEntity::getQueryStringForIndicesAndFKs()
+        );
+    }
+
+    public function testGetCreateTableStringWithoutAdditionalIndices()
+    {
+        $expected = 'create table test_entity (id bigint(20) primary key auto_increment,createdAt int(11) NOT NULL,updatedAt int(11) NOT NULL,createdBy varchar(64) default null,updatedBy varchar(64) default null,isActive int(11) default 1,isDeleted int(11) default 0,playerId bigint,categoryId bigint,registration varchar(20),name varchar(20)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4';
+        $this->assertEquals(
+            $expected,
+            TestEntity::getCreateTableStringWithoutAdditionalIndices()
         );
     }
 

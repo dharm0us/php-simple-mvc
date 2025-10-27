@@ -286,6 +286,39 @@ WHERE
 		return $fkText;
 	}
 
+	public static function getCreateTableStringWithoutAdditionalIndices(): string
+	{
+		$baseColumnDefs = self::getDefaultDefs();
+		$extraColumnDefs = static::getColumnDefinitions();
+		$finalColumnDefs = array_merge($baseColumnDefs, $extraColumnDefs);
+		$tableName = static::getTableName();
+		$query = "create table $tableName (";
+		foreach ($finalColumnDefs as $col => $def) {
+			$query .= "$col $def,";
+		}
+		$query = rtrim($query, ",");
+		$query .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+		return $query;
+	}
+
+	public static function getQueryStringForIndicesAndFKs(): string
+	{
+		$tableName = static::getTableName();
+		$indexDefs = static::getIndexDefinitions();
+		$fkDefs = static::getFKs();
+		$query = "alter table $tableName";
+
+		foreach ($indexDefs as $index) {
+			$index_type = $index[0];
+			$index_name = $index[1];
+			$column_name = $index[2];
+			$query .= " add $index_type $index_name ($column_name),";
+		}
+
+		$query .= " " . static::generateFKString(fkList: $fkDefs, forUpdate: true);
+		$query = rtrim($query, ",");
+		return $query;
+	}
 
 	private static function createTable($columnDefs, $indexDefs, $fkDefs)
 	{
