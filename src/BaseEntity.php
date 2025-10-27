@@ -316,7 +316,9 @@ WHERE
 		}
 
 		$query .= " " . static::generateFKString(fkList: $fkDefs, forUpdate: true);
-		$query = trim(rtrim(trim($query, ",")));
+		$query = trim($query);
+		$query = rtrim($query, ",");
+		$query = trim($query);
 		return $query;
 	}
 

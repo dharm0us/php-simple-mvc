@@ -4,6 +4,7 @@ require_once 'PlayerEntity.php';
 require_once 'CategoryEntity.php';
 require_once 'RankingEntity.php';
 require_once 'TestEntity.php';
+require_once 'RankingRowEntity.php';
 class BaseEntityTest extends PHPUnit\Framework\TestCase
 {
     public function setUp(): void
@@ -67,6 +68,12 @@ class BaseEntityTest extends PHPUnit\Framework\TestCase
         $this->assertEquals(
             $expected,
             TestEntity::getQueryStringForIndicesAndFKs()
+        );
+
+        $expected = 'alter table rankings add FULLTEXT name_idx_ft (name), add INDEX name_idx (name), add INDEX registration_idx (registration), add INDEX dob_idx (dob), add INDEX state_idx (state), add INDEX cat_idx (cat), add INDEX subcat_idx (subcat), add INDEX rankingDate_idx (rankingDate), add INDEX rankingFile_idx (rankingFile), add INDEX rankOnDate_idx (rankOnDate), add INDEX rankingPoints_idx (rankingPoints), add INDEX cat_subcat_rankingDate_idx (cat,subcat,rankingDate), add INDEX registration_cat_subcat_rankOnDate_idx (registration,cat,subcat,rankOnDate), add INDEX registration_cat_subcat_rankingDate_idx (registration,cat,subcat,rankingDate DESC), add INDEX registration_rankingDate_idx (registration,rankingDate DESC), add INDEX idx_rank_registration_cat_subcat (rankOnDate,registration,cat,subcat), add UNIQUE KEY rownum_filename_idx (rowNum,rankingFile)';
+        $this->assertEquals(
+            $expected,
+            RankingRowEntity::getQueryStringForIndicesAndFKs()
         );
     }
 
