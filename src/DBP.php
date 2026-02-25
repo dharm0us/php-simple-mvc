@@ -80,6 +80,15 @@ class DBP
         return static::getRows();
     }
 
+    public static function getIterativeResultSet($query, $bindings = array())
+    {
+        static::runQuery($query, $bindings);
+        $sth = static::$sth;
+        while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+            yield $row;
+        }
+    }
+
     public static function beginTransaction()
     {
         static::runQuery('start transaction');

@@ -121,4 +121,58 @@ class DBPTest extends PHPUnit\Framework\TestCase
         $this->assertEquals($cat2->getCat(), "Girls");
         $this->assertEquals($cat2->getSubcat(), "U-14");
     }
+
+    public function testIterativeResultSet()
+    {
+        DBG::runQuery("drop table if exists iterative_test");
+        DBG::runQuery("create table iterative_test (a int, b int)");
+        for ($i = 1; $i <= 5; $i++) {
+            DBW::runQuery("insert into iterative_test values (?, ?)", array($i, $i * 10));
+        }
+
+        $iterator = DBR::getIterativeResultSet("select * from iterative_test order by a asc");
+
+        $count = 0;
+        foreach ($iterator as $row) {
+            $count++;
+            $this->assertEquals($count, $row['a']);
+            $this->assertEquals($count * 10, $row['b']);
+        }
+        $this->assertEquals(5, $count);
+
+        DBG::runQuery("drop table iterative_test");
+    }
+
+    public function testNestedIterativeResultSet()
+    {
+        DBG::runQuery("drop table if exists parent_test");
+        DBG::runQuery("drop table if exists child_test");
+        DBG::runQuery("create table parent_test (id int)");
+        DBG::runQuery("create table child_test (parent_id int, val int)");
+
+        for ($i = 1; $i <= 3; $i++) {
+            DBW::runQuery("insert into parent_test values (?)", array($i));
+            for ($j = 1; $j <= 2; $j++) {
+                DBW::runQuery("insert into child_test values (?, ?)", array($i, $i * 10 + $j));
+            }
+        }
+
+        $parentIterator = DBR::getIterativeResultSet("select * from parent_test order by id asc");
+        $outerCount = 0;
+        $innerCountTotal = 0;
+        foreach ($parentIterator as $parent) {
+            $outerCount++;
+            // This nested query will overwrite DBR::$sth, but the generator should still hold its own reference.
+            $childRows = DBR::getResultSet("select * from child_test where parent_id = ? order by val asc", array($parent['id']));
+            foreach ($childRows as $child) {
+                $innerCountTotal++;
+            }
+        }
+
+        $this->assertEquals(3, $outerCount);
+        $this->assertEquals(6, $innerCountTotal);
+
+        DBG::runQuery("drop table parent_test");
+        DBG::runQuery("drop table child_test");
+    }
 }
