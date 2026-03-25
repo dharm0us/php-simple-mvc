@@ -2,23 +2,32 @@
 
 namespace SimpleMVC;
 
-Class Log {
+class Log
+{
 
 	protected static $verbose = false;
 	protected static $browser = true;
 
 
-	public static function error() {
+	public static function error()
+	{
 		self::logit('ERROR', func_get_args());
 	}
 
-	public static function info() {
+	public static function slow()
+	{
+		self::logit('SLOW', func_get_args());
+	}
+
+	public static function info()
+	{
 		self::logit('INFO', func_get_args());
 	}
 
-	protected static function logit($type, $msgs) {
+	protected static function logit($type, $msgs)
+	{
 		ob_start();
-	//debug_print_backtrace();
+		//debug_print_backtrace();
 		foreach ($msgs as $msg) {
 			print_r($msg);
 			print_r("\n");
@@ -30,9 +39,12 @@ Class Log {
 			case 'ERROR':
 				$logPath = ERROR_LOG_LOCATION;
 				break;
+			case 'SLOW':
+				$logPath = SLOW_LOG_LOCATION;
+				break;
 		}
-		$serverName = isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:"";
-		$completeMsg = date('d-m-Y H:i:s', time()) ." ".$serverName.' [' . $type . ']: ' . ob_get_contents() . "\n" . "----------------------------------" . "\n";
+		$serverName = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : "";
+		$completeMsg = date('d-m-Y H:i:s', time()) . " " . $serverName . ' [' . $type . ']: ' . ob_get_contents() . "\n" . "----------------------------------" . "\n";
 		ob_end_clean();
 
 		$fp = fopen(DEFAULT_LOG_LOCATION, 'a');
@@ -55,19 +67,20 @@ Class Log {
 		}
 	}
 
-    public static function logRequest() {
-		Log::info($_REQUEST);return;
-        $password = null;
-        $passwordSet = false;
-        if(isset($_REQUEST['password'])){
-            $password = $_REQUEST['password'];
-            $passwordSet = true;
-            unset($_REQUEST['password']);
-        }
-        Log::info($_REQUEST);
-        if($passwordSet) {
-            $_REQUEST['password'] = $password;
-        }
-    }
+	public static function logRequest()
+	{
+		Log::info($_REQUEST);
+		return;
+		$password = null;
+		$passwordSet = false;
+		if (isset($_REQUEST['password'])) {
+			$password = $_REQUEST['password'];
+			$passwordSet = true;
+			unset($_REQUEST['password']);
+		}
+		Log::info($_REQUEST);
+		if ($passwordSet) {
+			$_REQUEST['password'] = $password;
+		}
+	}
 }
-

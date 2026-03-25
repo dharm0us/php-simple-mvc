@@ -177,7 +177,7 @@ class DBP
                             }
                         }
                     }
-                    Log::error("Time Taken : $diff seconds", array_slice($bindings, 0, 10), substr($query, 0, 400), $traceString);
+                    Log::slow("Time Taken : $diff seconds", array_slice($bindings, 0, 10), substr($query, 0, 400), $traceString);
                 }
             } catch (Exception $e) {
                 $error = $e->getMessage();
