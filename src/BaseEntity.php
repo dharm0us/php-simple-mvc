@@ -297,7 +297,7 @@ WHERE
 			$query .= "$col $def,";
 		}
 		$query = rtrim($query, ",");
-		$query .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+		$query .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci";
 		return $query;
 	}
 
@@ -337,7 +337,7 @@ WHERE
 		}
 		$query .= static::generateFKString(fkList: $fkDefs, forUpdate: false);
 		$query = rtrim($query, ",");
-		$query .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+		$query .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci";
 		DBG::runQuery($query);
 	}
 
