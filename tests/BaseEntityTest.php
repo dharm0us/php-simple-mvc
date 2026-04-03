@@ -79,7 +79,7 @@ class BaseEntityTest extends PHPUnit\Framework\TestCase
 
     public function testGetCreateTableStringWithoutAdditionalIndices()
     {
-        $expected = 'create table test_entity (id bigint(20) primary key auto_increment,createdAt int(11) NOT NULL,updatedAt int(11) NOT NULL,createdBy varchar(64) default null,updatedBy varchar(64) default null,isActive int(11) default 1,isDeleted int(11) default 0,playerId bigint,categoryId bigint,registration varchar(20),name varchar(20)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4';
+        $expected = 'create table test_entity (id bigint(20) primary key auto_increment,createdAt int(11) NOT NULL,updatedAt int(11) NOT NULL,createdBy varchar(64) default null,updatedBy varchar(64) default null,isActive int(11) default 1,isDeleted int(11) default 0,playerId bigint,categoryId bigint,registration varchar(20),name varchar(20)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci';
         $this->assertEquals(
             $expected,
             TestEntity::getCreateTableStringWithoutAdditionalIndices()
